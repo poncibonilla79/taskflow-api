@@ -4,7 +4,7 @@ API REST con Express 5, TypeScript 6 y PostgreSQL.
 
 ## Requisitos
 
-- Node.js 22
+- Node.js 22.14
 - PostgreSQL 18
 - npm
 
