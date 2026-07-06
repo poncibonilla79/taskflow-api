@@ -1,77 +1,65 @@
-import { Request, Response } from 'express'; 
-import { projectsService } from '../services/projects.service'; 
-import { CreateProjectDto, UpdateProjectDto } from '../types/project.types'; 
- 
-export const projectsController = { 
- 
-  async getAll(req: Request, res: Response): Promise<void> { 
-    try { 
-      const projects = await projectsService.findAll(); 
-      res.json({ data: projects, count: projects.length }); 
-    } catch (error) { 
-      res.status(500).json({ error: "Error al obtener proyectos" }); 
-    } 
-  }, 
- 
-  async getById(req: Request, res: Response): Promise<void> { 
-    try { 
-      const project = await projectsService.findById(req.params.id as string); 
-      if (!project) { 
-        res.status(404).json({ error: "Proyecto no encontrado" }); 
-        return; 
-      } 
-      res.json({ data: project }); 
-    } catch (error) { 
-      res.status(500).json({ error: "Error al obtener el proyecto" }); 
-    } 
-  }, 
- 
-  async create(req: Request, res: Response): Promise<void> { 
-    try { 
-      const { name, description, ownerId } = req.body as CreateProjectDto; 
-      if (!name || !ownerId) { 
-        res.status(400).json({ error: "name y ownerId son requeridos" }); 
-        return; 
-      } 
-      const project = await projectsService.create({ name, description, ownerId 
-}); 
-      res.status(201).json({ data: project }); 
-    } catch (error: any) { 
-      if (error?.code === 'P2003') { 
-        // P2003 = Foreign key constraint: el ownerId no existe en users 
-        res.status(400).json({ error: "El ownerId no existe como usuario" }); 
-        return; 
-      } 
-      res.status(500).json({ error: "Error al crear el proyecto" }); 
-    } 
-  }, 
- 
-  async update(req: Request, res: Response): Promise<void> { 
-    try { 
-      const { name, description } = req.body as UpdateProjectDto; 
-      const project = await projectsService.update(req.params.id as string, { name,
+import { Request, Response } from 'express';
+import { projectsService } from '../services/projects.service';
+import { CreateProjectDto, UpdateProjectDto } from '../types/project.types';
+import { sendSuccess, sendCreated, sendError, sendNoContent } from '../utils/response.util';
 
-description }); 
-      res.json({ data: project }); 
-    } catch (error: any) { 
-      if (error?.code === 'P2025') { 
-        res.status(404).json({ error: "Proyecto no encontrado" }); 
-        return; 
-      } 
-      res.status(500).json({ error: "Error al actualizar el proyecto" }); 
-    } 
-  }, 
- 
-  async remove(req: Request, res: Response): Promise<void> { 
-    try { 
-      await projectsService.remove(req.params.id as string); 
-      res.status(204).send(); 
-    } catch (error: any) { 
-      if (error?.code === 'P2025') { 
-        res.status(404).json({ error: "Proyecto no encontrado" }); 
-        return; 
-      } 
-      res.status(500).json({ error: "Error al eliminar el proyecto" }); 
-    } 
-  }, 
-}; 
+export const projectsController = {
+
+  async getAll(req: Request, res: Response): Promise<void> {
+    try {
+      const projects = await projectsService.findAll();
+      sendSuccess(res, { data: projects, count: projects.length });
+    } catch (error) {
+      sendError(res, 500);
+    }
+  },
+
+  async getById(req: Request, res: Response): Promise<void> {
+    try {
+      const project = await projectsService.findById(req.params.id as string);
+      if (!project) { sendError(res, 404); return; }
+      sendSuccess(res, { data: project });
+    } catch (error) {
+      sendError(res, 500);
+    }
+  },
+
+  async create(req: Request, res: Response): Promise<void> {
+    try {
+      const { name, description, ownerId } = req.body as CreateProjectDto;
+      if (!name || !ownerId) {
+        sendError(res, 400, 'name y ownerId son requeridos');
+        return;
+      }
+      const project = await projectsService.create({ name, description, ownerId });
+      sendCreated(res, { data: project });
+    } catch (error: any) {
+      if (error?.code === 'P2003') {
+        sendError(res, 400, 'El ownerId no existe como usuario');
+        return;
+      }
+      sendError(res, 500);
+    }
+  },
+
+  async update(req: Request, res: Response): Promise<void> {
+    try {
+      const { name, description } = req.body as UpdateProjectDto;
+      const project = await projectsService.update(req.params.id as string, { name, description });
+      sendSuccess(res, { data: project });
+    } catch (error: any) {
+      if (error?.code === 'P2025') { sendError(res, 404); return; }
+      sendError(res, 500);
+    }
+  },
+
+  async remove(req: Request, res: Response): Promise<void> {
+    try {
+      await projectsService.remove(req.params.id as string);
+      sendNoContent(res);
+    } catch (error: any) {
+      if (error?.code === 'P2025') { sendError(res, 404); return; }
+      sendError(res, 500);
+    }
+  },
+};
