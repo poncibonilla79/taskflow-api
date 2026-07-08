@@ -43,20 +43,22 @@ export const usersController = {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const { name, email } = req.body as UpdateUserDto;
-      const user = await usersService.update(req.params.id as string, { name, email });
+      const user = await usersService.update(req.params.id as string, { name, email }, req.user!.userId);
       sendSuccess(res, { data: user });
     } catch (error: any) {
       if (error?.code === 'P2025') { sendError(res, 404); return; }
+      if (error?.status === 403) { sendError(res, 403, error.message); return; }
       sendError(res, 500);
     }
   },
 
   async remove(req: Request, res: Response): Promise<void> {
     try {
-      await usersService.remove(req.params.id as string);
+      await usersService.remove(req.params.id as string, req.user!.userId);
       sendNoContent(res);
     } catch (error: any) {
       if (error?.code === 'P2025') { sendError(res, 404); return; }
+      if (error?.status === 403) { sendError(res, 403, error.message); return; }
       sendError(res, 500);
     }
   },

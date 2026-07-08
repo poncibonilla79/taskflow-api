@@ -1,6 +1,7 @@
 import { Router } from 'express'; 
 import { usersController } from '../controllers/users.controller'; 
-
+import { authMiddleware } from '../middleware/auth.middleware'; 
+ 
 const router = Router(); 
 
 /**
@@ -23,7 +24,7 @@ const router = Router();
  *                     $ref: '#/components/schemas/User'
  *                 count: { type: integer }
  */
-router.get('/', usersController.getAll);
+router.get('/', authMiddleware, usersController.getAll);
 
 /**
  * @openapi
@@ -49,7 +50,7 @@ router.get('/', usersController.getAll);
  *       404:
  *         description: Usuario no encontrado
  */
-router.get('/:id', usersController.getById);
+router.get('/:id', authMiddleware, usersController.getById);
 
 /**
  * @openapi
@@ -83,7 +84,7 @@ router.get('/:id', usersController.getById);
  *       409:
  *         description: El email ya está registrado
  */
-router.post('/', usersController.create);
+router.post('/', authMiddleware, usersController.create);
 
 /**
  * @openapi
@@ -118,7 +119,7 @@ router.post('/', usersController.create);
  *       404:
  *         description: Usuario no encontrado
  */
-router.put('/:id', usersController.update);
+router.put('/:id', authMiddleware, usersController.update);
 
 /**
  * @openapi
@@ -137,6 +138,6 @@ router.put('/:id', usersController.update);
  *       404:
  *         description: Usuario no encontrado
  */
-router.delete('/:id', usersController.remove);
+router.delete('/:id', authMiddleware, usersController.remove);
 
 export default router;

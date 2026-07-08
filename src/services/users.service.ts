@@ -29,31 +29,31 @@ export const usersService = {
     }); 
   }, 
  
-  // Crea un usuario. NOTA: password en texto plano solo para Clase 2. 
-  // En Clase 3 lo reemplazaremos por bcrypt.hash(password, 10). 
-  async create(data: CreateUserDto): Promise<UserPublic> { 
-    return prisma.user.create({ 
-      data: { 
-        name: data.name, 
-        email: data.email, 
-        passwordHash: data.password, // TODO Clase 3: usar bcrypt 
-      }, 
-      select: USER_SELECT, 
-    }); 
+  async create(data: CreateUserDto): Promise<UserPublic> {
+    return prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        passwordHash: await bcrypt.hash(data.password, 10),
+      },
+      select: USER_SELECT,
+    });
   }, 
  
   // Actualiza solo los campos que se envíen (name y/o email) 
-  async update(id: string, data: UpdateUserDto): Promise<UserPublic> { 
-    return prisma.user.update({ 
-      where: { id }, 
-      data, 
-      select: USER_SELECT, 
-    }); 
-  }, 
+  async update(id: string, data: UpdateUserDto, userId: string): Promise<UserPublic> {
+    if (id !== userId) throw { status: 403, message: 'No tienes permiso para modificar este usuario' };
+    return prisma.user.update({
+      where: { id },
+      data,
+      select: USER_SELECT,
+    });
+  },
  
   // Elimina el usuario. Prisma lanza P2025 si no existe. 
-  async remove(id: string): Promise<void> { 
-    await prisma.user.delete({ where: { id } }); 
+  async remove(id: string, userId: string): Promise<void> {
+    if (id !== userId) throw { status: 403, message: 'No tienes permiso para eliminar este usuario' };
+    await prisma.user.delete({ where: { id } });
   }, 
  
   // Verifica si un email ya está registrado (para evitar duplicados) 

@@ -19,6 +19,7 @@ function timestamp(): string {
 
 export function sendSuccess<T>(res: Response, data: T, message?: string) {
   const body: ApiResponse<T> = {
+    success: true,
     status: 200,
     message: message ?? MESSAGES[200],
     data,
@@ -29,6 +30,7 @@ export function sendSuccess<T>(res: Response, data: T, message?: string) {
 
 export function sendCreated<T>(res: Response, data: T, message?: string) {
   const body: ApiResponse<T> = {
+    success: true,
     status: 201,
     message: message ?? MESSAGES[201],
     data,
@@ -40,6 +42,7 @@ export function sendCreated<T>(res: Response, data: T, message?: string) {
 export function sendError(res: Response, status: number, message?: string) {
   const msg = message ?? MESSAGES[status] ?? MESSAGES[500];
   const body: ApiResponse = {
+    success: false,
     status,
     message: msg,
     error: msg,

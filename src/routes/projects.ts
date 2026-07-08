@@ -1,6 +1,7 @@
 import { Router } from 'express'; 
 import { projectsController } from '../controllers/projects.controller'; 
-
+import { authMiddleware } from '../middleware/auth.middleware'; 
+ 
 const router = Router(); 
 
 /**
@@ -23,7 +24,7 @@ const router = Router();
  *                     $ref: '#/components/schemas/Project'
  *                 count: { type: integer }
  */
-router.get('/', projectsController.getAll);
+router.get('/', authMiddleware, projectsController.getAll);
 
 /**
  * @openapi
@@ -49,7 +50,7 @@ router.get('/', projectsController.getAll);
  *       404:
  *         description: Proyecto no encontrado
  */
-router.get('/:id', projectsController.getById);
+router.get('/:id', authMiddleware, projectsController.getById);
 
 /**
  * @openapi
@@ -81,7 +82,7 @@ router.get('/:id', projectsController.getById);
  *       400:
  *         description: Faltan campos requeridos o ownerId inválido
  */
-router.post('/', projectsController.create);
+router.post('/', authMiddleware, projectsController.create);
 
 /**
  * @openapi
@@ -116,7 +117,7 @@ router.post('/', projectsController.create);
  *       404:
  *         description: Proyecto no encontrado
  */
-router.put('/:id', projectsController.update);
+router.put('/:id', authMiddleware, projectsController.update);
 
 /**
  * @openapi
@@ -135,6 +136,6 @@ router.put('/:id', projectsController.update);
  *       404:
  *         description: Proyecto no encontrado
  */
-router.delete('/:id', projectsController.remove);
+router.delete('/:id', authMiddleware, projectsController.remove);
 
 export default router; 

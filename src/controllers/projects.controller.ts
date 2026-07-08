@@ -26,18 +26,14 @@ export const projectsController = {
 
   async create(req: Request, res: Response): Promise<void> {
     try {
-      const { name, description, ownerId } = req.body as CreateProjectDto;
-      if (!name || !ownerId) {
-        sendError(res, 400, 'name y ownerId son requeridos');
+      const { name, description } = req.body as CreateProjectDto;
+      if (!name) {
+        sendError(res, 400, 'name es requerido');
         return;
       }
-      const project = await projectsService.create({ name, description, ownerId });
+      const project = await projectsService.create({ name, description }, req.user!.userId);
       sendCreated(res, { data: project });
     } catch (error: any) {
-      if (error?.code === 'P2003') {
-        sendError(res, 400, 'El ownerId no existe como usuario');
-        return;
-      }
       sendError(res, 500);
     }
   },
@@ -45,20 +41,24 @@ export const projectsController = {
   async update(req: Request, res: Response): Promise<void> {
     try {
       const { name, description } = req.body as UpdateProjectDto;
-      const project = await projectsService.update(req.params.id as string, { name, description });
+      const project = await projectsService.update(req.params.id as string, { name, description }, req.user!.userId);
       sendSuccess(res, { data: project });
     } catch (error: any) {
       if (error?.code === 'P2025') { sendError(res, 404); return; }
+      if (error?.status === 403) { sendError(res, 403, error.message); return; }
+      if (error?.status === 404) { sendError(res, 404, error.message); return; }
       sendError(res, 500);
     }
   },
 
   async remove(req: Request, res: Response): Promise<void> {
     try {
-      await projectsService.remove(req.params.id as string);
+      await projectsService.remove(req.params.id as string, req.user!.userId);
       sendNoContent(res);
     } catch (error: any) {
       if (error?.code === 'P2025') { sendError(res, 404); return; }
+      if (error?.status === 403) { sendError(res, 403, error.message); return; }
+      if (error?.status === 404) { sendError(res, 404, error.message); return; }
       sendError(res, 500);
     }
   },

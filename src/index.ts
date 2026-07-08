@@ -9,6 +9,7 @@ import usersRouter    from './routes/users';
 import projectsRouter from './routes/projects';
 import tasksRouter    from './routes/tasks';
 import commentsRouter from './routes/comments';
+import dashboardRouter from './routes/dashboard';
 import { errorMiddleware } from './middleware/error.middleware';
 import { sendSuccess, sendError } from './utils/response.util';
 
@@ -34,6 +35,7 @@ app.use('/api/users',    usersRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/tasks',    tasksRouter);
 app.use('/api/comments', commentsRouter);
+app.use('/api/dashboard', dashboardRouter);
 
 app.get('/', (_req: Request, res: Response) => {
   sendSuccess(res, { project: 'TaskFlow API', version: '1.2.0', clase: 3,
