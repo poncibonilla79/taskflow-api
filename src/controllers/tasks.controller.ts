@@ -11,7 +11,7 @@ export const tasksController = {
         req.params.projectId as string,
         req.query.status as string | undefined
       );
-      sendSuccess(res, { data: tasks, count: tasks.length });
+      sendSuccess(res, tasks);
     } catch (e: any) { sendError(res, e?.status ?? 500, e?.message); }
   },
 
@@ -19,14 +19,14 @@ export const tasksController = {
     try {
       const task = await tasksService.findById(req.params.id as string);
       if (!task) { sendError(res, 404); return; }
-      sendSuccess(res, { data: task });
+      sendSuccess(res, task);
     } catch (e: any) { sendError(res, e?.status ?? 500, e?.message); }
   },
 
   async create(req: Request, res: Response): Promise<void> {
     try {
       const task = await tasksService.create(req.body as CreateTaskDto, req.user!.userId);
-      sendCreated(res, { data: task });
+      sendCreated(res, task);
     } catch (e: any) { sendError(res, e?.status ?? 500, e?.message); }
   },
 
@@ -35,7 +35,7 @@ export const tasksController = {
       const task = await tasksService.update(
         req.params.id as string, req.body as UpdateTaskDto, req.user!.userId
       );
-      sendSuccess(res, { data: task });
+      sendSuccess(res, task);
     } catch (e: any) { sendError(res, e?.status ?? 500, e?.message); }
   },
 

@@ -17,7 +17,7 @@ export const commentsService = {
  
     return prisma.comment.create({ 
       data: { content: data.content, taskId: data.taskId, userId }, 
-      include: { user: { select: { id: true, name: true } } }, 
+      include: { user: { select: { id: true, name: true, email: true } } }, 
     }); 
   }, 
  

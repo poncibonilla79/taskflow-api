@@ -8,7 +8,7 @@ export const projectsController = {
   async getAll(req: Request, res: Response): Promise<void> {
     try {
       const projects = await projectsService.findAll();
-      sendSuccess(res, { data: projects, count: projects.length });
+      sendSuccess(res, projects);
     } catch (error) {
       sendError(res, 500);
     }
@@ -18,7 +18,7 @@ export const projectsController = {
     try {
       const project = await projectsService.findById(req.params.id as string);
       if (!project) { sendError(res, 404); return; }
-      sendSuccess(res, { data: project });
+      sendSuccess(res, project);
     } catch (error) {
       sendError(res, 500);
     }
@@ -32,7 +32,7 @@ export const projectsController = {
         return;
       }
       const project = await projectsService.create({ name, description }, req.user!.userId);
-      sendCreated(res, { data: project });
+      sendCreated(res, project);
     } catch (error: any) {
       sendError(res, 500);
     }
@@ -42,7 +42,7 @@ export const projectsController = {
     try {
       const { name, description } = req.body as UpdateProjectDto;
       const project = await projectsService.update(req.params.id as string, { name, description }, req.user!.userId);
-      sendSuccess(res, { data: project });
+      sendSuccess(res, project);
     } catch (error: any) {
       if (error?.code === 'P2025') { sendError(res, 404); return; }
       if (error?.status === 403) { sendError(res, 403, error.message); return; }

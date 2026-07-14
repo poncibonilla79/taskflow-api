@@ -36,15 +36,19 @@ data.projectId } });
     if (project.ownerId !== requesterId) 
       throw { status: 403, message: 'Solo el dueño del proyecto puede crear tareas' }; 
  
-    return prisma.task.create({ 
-      data: { 
-        title:       data.title, 
-        description: data.description, 
-        status:      data.status ?? 'TODO', 
-        projectId:   data.projectId, 
-        assignedTo:  data.assignedTo, 
-      }, 
-    }); 
+    return prisma.task.create({
+      data: {
+        title:       data.title,
+        description: data.description,
+        status:      data.status ?? 'TODO',
+        projectId:   data.projectId,
+        assignedTo:  data.assignedTo,
+      },
+      include: {
+        assignee: { select: { id: true, name: true, email: true } },
+        _count:   { select: { comments: true } },
+      },
+    });
   }, 
  
   // Owner del proyecto O usuario asignado pueden actualizar el status 
@@ -59,7 +63,14 @@ requesterId;
     if (!canEdit) 
       throw { status: 403, message: 'No tienes permiso para modificar esta tarea' }; 
  
-    return prisma.task.update({ where: { id }, data }); 
+    return prisma.task.update({
+      where: { id },
+      data,
+      include: {
+        assignee: { select: { id: true, name: true, email: true } },
+        _count:   { select: { comments: true } },
+      },
+    }); 
   }, 
  
   async remove(id: string, requesterId: string) { 
